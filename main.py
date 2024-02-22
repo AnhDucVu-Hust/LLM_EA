@@ -9,7 +9,7 @@ import argparse
 import string
 import random
 from templates.context_gen_template import template_1
-api_key="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"
+api_key="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"
 openai.api_key=api_key
 
 def encode_prompt(prompt_instructions):
@@ -25,10 +25,9 @@ def sample_context(contexts,n):
     return random.sample(contexts,min(n,len(contexts)))
 
 def post_process_response(response):
-    print(response)
     if len(response['choices'])==0 or response is None or response['choices'][0].finish_reason == "length":
         return []
-    raw_instructions = re.split(r"\n\d+\s?\. ", response["choices"][0].message.content)
+    raw_instructions = re.split(r"\n\d+\s?\. ", response["choices"][0].text)
     instructions = []
     for inst in raw_instructions:
         inst = re.sub(r"\s+", " ", inst).strip()
@@ -53,7 +52,7 @@ if __name__=="__main__":
     parser.add_argument(
         "--engine",
         type=str,
-        default="gpt-3.5-turbo",
+        default="davinci-002",
     )
     parser.add_argument(
         "--request_batch_size",
@@ -86,7 +85,7 @@ if __name__=="__main__":
                 prompt_instructions += random.sample(seed_instruction,3)
                 random.shuffle(prompt_instructions)
                 prompt = encode_prompt(prompt_instructions)
-                batch_inputs.append({'role':'user','content':prompt})
+                batch_inputs.append({prompt})
             results = call_gpt(
                 engine=args.engine,
                 prompts = batch_inputs,
@@ -95,7 +94,7 @@ if __name__=="__main__":
                 top_p=0.5,
                 frequency_penalty=0,
                 presence_penalty=2,
-                stop_sequences=["\n\n", "\n16", "16.", "16 ."],
+                stop_sequences="\n\n",
                 logprobs=False,
                 n=1,
             )

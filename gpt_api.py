@@ -13,16 +13,16 @@ def call_gpt(engine,prompts,max_tokens,temperature,top_p,frequency_penalty,
     backoff_time=30
     while retry_count <= retries:
         try:
-            response = openai.chat.completions.create(
+            response = openai.completions.create(
                 model = engine,
-                messages = prompts,
+                prompt = prompts,
                 max_tokens = target_length,
                 temperature= temperature,
                 top_p = top_p,
                 frequency_penalty = frequency_penalty,
                 presence_penalty = presence_penalty,
                 stop = stop_sequences,
-                logprobs = logprobs,
+                logprobs = 1,
                 n = n,
             )
             break
